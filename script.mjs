@@ -11,7 +11,7 @@
 import { getUserIDs, getListenEvents, getSong } from './data.mjs';
 import { getMostOften, isFridayNight } from './common.mjs';
 
-// --- 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
+// --- 1. CONFIG & GLOBALS ---
 let API_CONFIG = { KEY: "" };
 
 const userSelect = document.getElementById('user-select');
@@ -69,41 +69,64 @@ function renderAllAnswers(events) {
         display("Most listened to song on Friday nights", `${getSong(topFriday[0]).artist} - ${getSong(topFriday[0]).title}`);
     }
 
-    const genreStats = {};
-    eventsWithData.forEach(e => {
-        const genre = e.song.genre;
-        genreStats[genre] = (genreStats[genre] || 0) + 1;
-    });
-    const topGenres = Object.entries(genreStats).sort((a,b) => b[1] - a[1]).slice(0, 3).map(g => g[0]);
-    display("Top genres", topGenres.join(', '));
-}
-
-// --- 4. ОБРАБОТЧИКИ СОБЫТИЙ ---
-if (userSelect) {
-    userSelect.addEventListener('change', (e) => {
-        const userId = e.target.value;
-        if (!userId) return;
-        const events = getListenEvents(userId);
-        if (events && events.length > 0) renderAllAnswers(events);
-    });
-}
-
-if (searchBtn) {
-    searchBtn.addEventListener('click', () => {
-        const query = searchInput.value.trim().toLowerCase();
-        if (!query) return;
-        resultsArea.innerHTML = '<p>Searching...</p>';
-        // Простая имитация поиска по локальным данным (безопасно)
-        const allSongs = getUserIDs().flatMap(id => getListenEvents(id)).map(e => getSong(e.song_id));
-        const filtered = allSongs.filter(s => s.artist.toLowerCase().includes(query));
-        resultsArea.innerHTML = '';
-        if (filtered.length > 0) {
-            display(`Search Result`, `Found artist: ${filtered[0].artist}`);
+    const topSongTime = getMostOften(eventsWithData, e => e.song_id, e => e.song.duration_seconds);
+    display("Most listened to song (by listening time)", `${getSong(topSongTime[0]).artist} - ${getSong(topSongTime[0]).title}`);
+    
+    let maxStreak = 0, currentStreak = 1, bestStreakSongId = events[0].song_id;
+    for (let i = 1; i < events.length; i++) {
+        if (events[i].song_id === events[i-1].song_id) {
+            currentStreak++;
         } else {
-            display(`Search Result`, `No artist found for "${query}"`);
+            if (currentStreak > maxStreak) {
+                maxStreak = currentStreak;
+                bestStreakSongId = events[i-1].song_id;
+            }
+            currentStreak = 1;
         }
-    });
+    }
+    const s = getSong(bestStreakSongId);
+    display("Longest streak song", `${s.artist} - ${s.title} (Streak: ${maxStreak})`);
+
+    const genreStats = {};
+    eventsWithData.forEach(e => genreStats[e.song.genre] = (genreStats[e.song.genre] || 0) + 1);
+    const topGenres = Object.entries(genreStats).sort((a,b) => b[1] - a[1]).slice(0, 3).map(g => g[0]);
+    display("Top genres", topGenres.join(',埋 '));
 }
 
-// ЗАПУСК ПРИ ЗАГРУЗКЕ
+// --- 4. EVENT LISTENERS ---
+
+userSelect.addEventListener('change', (e) => {
+    const userId = e.target.value;
+    if (!userId) return;
+
+    const events = getListenEvents(userId);
+    if (events && events.length > 0) {
+        renderAllAnswers(events);
+    }
+});
+
+searchBtn.addEventListener('click', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    if (query) {
+        resultsArea.innerHTML = ''; 
+        const allSongs = getUserIDs().flatMap(id => getListenEvents(id)).map(e => getSong(e.song_id));
+        const uniqueSongs = Array.from(new Map(allSongs.map(s => [s.id, s])).values());
+        const filtered = uniqueSongs.filter(song => song.artist.toLowerCase().includes(query));
+        
+        filtered.forEach(song => {
+            display(`Artist: ${song.artist}`, `Featured Track: ${song.title}`);
+        });
+    }
+});
+
+// --- 5. UTILS ---
+
+function display(title, answer) {
+    const card = document.createElement('section');
+    card.className = 'question-block';
+    card.innerHTML = `<h3>${title}</h3><p>🎧 ${answer}</p>`;
+    resultsArea.appendChild(card);
+}
+
+// ЗАПУСК
 init();
