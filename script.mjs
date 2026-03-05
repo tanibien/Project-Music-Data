@@ -19,34 +19,39 @@ const resultsArea = document.getElementById('results');
 const searchBtn = document.getElementById('search-btn');
 const searchInput = document.getElementById('search-input');
 
-// --- 2. INITIALIZATION LOGIC ---
-
+// --- 2. ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ---
 async function init() {
-    // Пытаемся загрузить конфиг. Если файла нет - идем дальше.
+    // Пробуем загрузить конфиг (на GitHub его не будет, и это ок)
     try {
         const configModule = await import('./config.mjs');
         API_CONFIG = configModule.API_CONFIG;
-        console.log("Config loaded");
     } catch (e) {
-        console.warn("Config not found, using empty defaults");
+        console.log("Running in production mode (no local config).");
     }
 
-    // Заполняем список пользователей
+    // Загружаем пользователей
     try {
         const ids = getUserIDs();
-        ids.forEach(id => {
-            const option = document.createElement('option');
-            option.value = id;
-            option.textContent = `User ${id}`;
-            userSelect.appendChild(option);
-        });
-        console.log("Users populated");
+        if (userSelect) {
+            ids.forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = `User ${id}`;
+                userSelect.appendChild(option);
+            });
+        }
     } catch (error) {
         console.error("Failed to load users:", error);
     }
 }
 
-// --- 3. STATISTICS LOGIC ---
+// --- 3. ЛОГИКА ОТОБРАЖЕНИЯ ---
+function display(title, answer) {
+    const card = document.createElement('section');
+    card.className = 'question-block';
+    card.innerHTML = `<h3>${title}</h3><p>🎧 ${answer}</p>`;
+    resultsArea.appendChild(card);
+}
 
 function renderAllAnswers(events) {
     resultsArea.innerHTML = ''; 
