@@ -6,20 +6,20 @@
 
 /**
  * Music Capsule Project - Main Logic
- * Includes Data Analysis, Search Functionality, and API Handling
  */
 
 import { getUserIDs, getListenEvents, getSong } from './data.mjs';
 import { getMostOften, isFridayNight } from './common.mjs';
+import { API_CONFIG } from './config.mjs'; 
 
-// DOM Elements
+// --- 1. DOM ELEMENTS ---
+// Мы должны объявить их в начале, чтобы функции могли ими пользоваться
 const userSelect = document.getElementById('user-select');
 const resultsArea = document.getElementById('results');
 const searchBtn = document.getElementById('search-btn');
 const searchInput = document.getElementById('search-input');
 
-// --- 1. INITIALIZATION ---
-
+// --- 2. INITIALIZATION ---
 function init() {
     try {
         const ids = getUserIDs();
@@ -34,12 +34,27 @@ function init() {
     }
 }
 
-// --- 2. USER STATISTICS LOGIC ---
+// --- 3. API LOGIC ---
+async function searchArtistAPI(artistName) {
+    // Используем ключ из импортированного конфига
+    const apiKey = API_CONFIG.KEY; 
+    const url = `https://api.example.com/search?q=${artistName}&apikey=${apiKey}`;
 
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('API Error Handle:', error);
+        return null;
+    }
+}
+
+// --- 4. USER STATISTICS LOGIC ---
 userSelect.addEventListener('change', (e) => {
     const userId = e.target.value;
     
-    // Empty state handling
     if (!userId) {
         resultsArea.innerHTML = `
             <div class="empty-state">
@@ -51,7 +66,6 @@ userSelect.addEventListener('change', (e) => {
     try {
         const events = getListenEvents(userId);
         
-        // Handle User with no data (Requirement: Handle empty state)
         if (!events || events.length === 0) {
             resultsArea.innerHTML = `
                 <div class="empty-state">
@@ -68,9 +82,8 @@ userSelect.addEventListener('change', (e) => {
 });
 
 function renderAllAnswers(events) {
-    resultsArea.innerHTML = ''; // Clear previous results
+    resultsArea.innerHTML = ''; 
 
-    // Pre-map events with song data for performance
     const eventsWithData = events.map(e => ({ ...e, song: getSong(e.song_id) }));
 
     // Q1: Most listened song
@@ -124,8 +137,7 @@ function renderAllAnswers(events) {
     display(topGenres.length === 3 ? "Top three genres" : `Top ${topGenres.length} genres`, topGenres.join(', '));
 }
 
-// --- 3. SEARCH & API LOGIC ---
-
+// --- 5. SEARCH LOGIC ---
 searchBtn.addEventListener('click', () => {
     const query = searchInput.value.trim().toLowerCase();
     if (query) {
@@ -133,14 +145,8 @@ searchBtn.addEventListener('click', () => {
     }
 });
 
-/**
- * Requirement: Create filter function
- * Requirement: Render artist card dynamically
- */
 function handleSearch(query) {
     resultsArea.innerHTML = ''; 
-    
-    // Flatten all data to find artists
     const allSongs = getUserIDs().flatMap(id => getListenEvents(id)).map(e => getSong(e.song_id));
     const uniqueSongs = Array.from(new Map(allSongs.map(s => [s.id, s])).values());
 
@@ -154,33 +160,11 @@ function handleSearch(query) {
     }
 
     filtered.forEach(song => {
-        // Here we use the display function which creates a "card-like" section
         display(`Artist Profile: ${song.artist}`, `Featured Track: ${song.title} | Genre: ${song.genre}`);
     });
 }
 
-/**
- * Requirement: Setup fetch request & Handle API key securely
- * Note: This is a template for the demonstration of API handling
- */
-async function searchArtistAPI(artistName) {
-    // In a real app, API keys should be stored in environment variables
-    const apiKey = 'AIzaSyBMdHo2MNhZtvFG-QBO4r7OxjkQEyOO95w'; 
-    const url = `https://api.example.com/search?q=${artistName}&apikey=${apiKey}`;
-
-    try {
-        const response = await fetch(url); // Step 1: Fetch
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json(); // Step 2: Parse JSON
-        return data;
-    } catch (error) {
-        console.error('API Error Handle:', error); // Step 3: Handle errors
-        return null;
-    }
-}
-
-// --- 4. UTILS ---
-
+// --- 6. UTILS ---
 function display(title, answer) {
     const card = document.createElement('section');
     card.className = 'question-block';
@@ -191,8 +175,7 @@ function display(title, answer) {
     resultsArea.appendChild(card);
 }
 
-// Start the app
-// Ждем, пока прогрузится DOM, и только потом заполняем список
+// Start the app after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
