@@ -1,0 +1,211 @@
+/* --- 1. ПЕРЕМЕННЫЕ ЦВЕТОВ SPOTIFY --- */
+:root {
+    --bg-black: #121212;
+    --card-bg: #181818;
+    --card-hover: #282828;
+    --spotify-green: #1DB954;
+    --spotify-green-bright: #1ED760;
+    --text-white: #FFFFFF;
+    --text-gray: #B3B3B3;
+    --border-gray: #282828;
+}
+
+/* --- 2. БАЗОВЫЕ НАСТРОЙКИ (STIKY FOOTER) --- */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column; /* Вертикальный стек элементов */
+    background-color: var(--bg-black);
+    color: var(--text-white);
+    font-family: 'Circular Std', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+/* Основной контейнер */
+.container {
+    flex: 1 0 auto; /* Растягивается, толкая футер вниз */
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* --- 3. ШАПКА И УПРАВЛЕНИЕ --- */
+header {
+    border-bottom: 1px solid var(--border-gray);
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin: 0 0 20px 0;
+    color: var(--text-white);
+    letter-spacing: -1px;
+}
+
+.controls-group {
+    display: flex;
+    flex-direction: column; /* Поиск ПОД селектором */
+    gap: 20px;
+}
+
+/* Селектор профиля */
+.user-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-control label {
+    color: var(--text-gray);
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+select {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* --- 4. ПОИСКОВАЯ СТРОКА --- */
+.search-box {
+    display: flex;
+    gap: 12px;
+    max-width: 500px; /* Чтобы поиск не был слишком длинным */
+}
+
+#search-input {
+    background-color: #282828;
+    border: 1px solid transparent;
+    border-radius: 500px; /* Круглые края Spotify */
+    color: white;
+    padding: 12px 20px;
+    flex-grow: 1;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+#search-input:focus {
+    outline: none;
+    background-color: #333;
+    border-color: var(--spotify-green);
+}
+
+#search-btn {
+    background-color: var(--spotify-green);
+    color: #000;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 500px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+#search-btn:hover {
+    background-color: var(--spotify-green-bright);
+    transform: scale(1.04);
+}
+
+/* --- 5. РЕЗУЛЬТАТЫ И КАРТОЧКИ --- */
+#results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Стиль карточки (Question Block) */
+.question-block {
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: 8px;
+    border-left: 4px solid var(--spotify-green);
+    transition: background-color 0.3s ease;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.question-block:hover {
+    background-color: var(--card-hover);
+}
+
+.question-block h3 {
+    margin: 0 0 12px 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-gray);
+    letter-spacing: 1.2px;
+}
+
+.question-block p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    color: var(--spotify-green);
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Пустое состояние */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-gray);
+    background: #181818;
+    border-radius: 8px;
+}
+
+/* --- 6. ФУТЕР --- */
+footer {
+    flex-shrink: 0; /* Не дает футеру сжиматься */
+    background-color: #000;
+    padding: 30px 20px;
+    text-align: center;
+    border-top: 1px solid var(--border-gray);
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-gray);
+}
+
+/* --- 7. АНИМАЦИИ И АДАПТИВНОСТЬ --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+    .search-box {
+        flex-direction: column;
+    }
+    
+    #search-btn {
+        width: 100%;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+}
