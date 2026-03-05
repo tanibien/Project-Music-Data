@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Music Stats</title>
+    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none';">
+    <meta name="description" content="Personalized music listening statistics and data analysis in Spotify style.">
+</head>
+<body>
+    <div class="container">
+    <header>
+        <h1>Your Sound Capsule</h1>
+        <div class="controls-group">
+            <div class="user-control">
+                <label for="user-select">Select Profile:</label>
+                <select id="user-select">
+                    <option value="">-- Choose User --</option>
+                </select>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search artist...">
+                <button id="search-btn">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <main id="results" aria-live="polite">
+        <div class="empty-state">
+            <p>Select a user or search for an artist to begin.</p>
+        </div>
+    </main>
+</div>
+<script type="module" src="script.mjs"></script>
+</body>
+<footer>
+    <p>&copy; 2025 Music Capsule Project. Data provided by Tatiana Kuzmina [tanibien].</p>
+</footer>
