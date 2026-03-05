@@ -10,7 +10,7 @@
 import { getUserIDs, getListenEvents, getSong } from "./data.mjs";
 import { getMostOften, isFridayNight } from "./common.mjs";
 
-// --- 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
+// --- 1. CONFIG & GLOBALS ---
 let API_CONFIG = { KEY: "" };
 
 const userSelect = document.getElementById("user-select");
